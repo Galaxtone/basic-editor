@@ -1,9 +1,10 @@
 body {
-  background-color: #ddd;
+  background-color: #dddd;
+  margin: 0px;
 }
 
 .editor {
-  background-color: #ccc;
+  background-color: #eee;
   width: 100%;
   height: 100%;
   overflow-y: auto;
