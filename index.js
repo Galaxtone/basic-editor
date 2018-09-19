@@ -146,7 +146,7 @@
             textEditor.innerHTML += ":\r\n"
             for (var file in fileToIdent)
                 if (fileToIdent[file] != null)
-                    textEditor.textContent += " <a href=\"#" + file + "\">" + file + "</a>\r\n";
+                    textEditor.innerHTML += " <a href=\"#" + file + "\">" + file + "</a>\r\n";
         }
 
         textFilename.focus();
