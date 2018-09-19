@@ -7,6 +7,8 @@ var buttonDelete = document.getElementById("delete");
 
 var checkSaveClose = document.getElementById("saveclose");
 
+var paragraphError = document.getElementById("error");
+
 var supported = true
 if (localStorage == null)
     supported = false
@@ -20,7 +22,7 @@ else {
 }
 
 if (!supported) {
-    textEditor.textContent = "Local storage is required for functionality!"
+    paragraphError.textContent = "Local storage is required for functionality!"
     return;
 }
 
