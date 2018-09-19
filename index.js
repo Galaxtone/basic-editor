@@ -154,6 +154,12 @@
 
     close();
 
+    var possibleFile = location.hash.substring(1);
+    if (location.hash.startsWith("#") && fileToIdent[possibleFile] != null) {
+        textFilename.value = possibleFile;
+        open();
+    }
+
     textFilename.addEventListener("keyup", (event) => {
         if (event.key == "Enter")
             open();
