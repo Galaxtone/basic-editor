@@ -163,7 +163,7 @@
     close();
 
     hash();
-    document.addEventListener("hashchange", hash);
+    window.addEventListener("hashchange", hash);
 
     textFilename.addEventListener("keyup", (event) => {
         if (event.key == "Enter")
