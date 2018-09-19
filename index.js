@@ -1,11 +1,11 @@
 (()=>{
-  var textFilename = document.getElementByID("text");
+  var textFilename = document.getElementById("text");
   var textEditor = document.getElementById("editor");
   
-  var buttonList = document.getElementByID("list");
-  var buttonOpenClose = document.getElementByID("openclose");
-  var buttonSave = document.getElementByID("save");
-  var buttonDelete = document.getElementByID("delete");
+  var buttonList = document.getElementById("list");
+  var buttonOpenClose = document.getElementById("openclose");
+  var buttonSave = document.getElementById("save");
+  var buttonDelete = document.getElementById("delete");
   
   var filename = "";
   var opened = false;
