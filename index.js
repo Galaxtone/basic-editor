@@ -1,1 +1,183 @@
-(()=>{function a(){var v="f_"+(Math.floor(4294967296*Math.random())+"");return s[v]?a():(s[v]=!0,r+=1,v)}function b(){for(var v in u[p]=j.textContent,u){var x=t[v];localStorage.setItem(x+"name",v),localStorage.setItem(x,u[v])}var y=[];for(var A in s)null!=s[A]&&y.push(A);0<y.length&&localStorage.setItem("f",y.join(" "))}function d(){u[p]=localStorage.getItem(t[p])}function e(){u[p]=null}function g(){1>i.value.length||64<i.value.length||(k.textContent="Close",i.disabled=!0,l.disabled=!1,m.disabled=!1,p=i.value,q=!0,j.contentEditable=!0,d(),null==t[p]&&(t[p]=a(),u[p]=""),j.textContent=u[p],j.focus())}function h(){if(q&&(n.checked&&b(),e()),k.textContent="Open",i.disabled=!1,l.disabled=!0,m.disabled=!0,p="",q=!1,j.contentEditable=!1,j.textContent="Files ("+r+")",0<r)for(var v in j.textContent+=":\r\n",t)null!=t[v]&&(j.textContent+=" "+v+"\r\n");i.focus()}var i=document.getElementById("name"),j=document.getElementById("editor"),k=document.getElementById("openclose"),l=document.getElementById("save"),m=document.getElementById("delete"),n=document.getElementById("saveclose"),o=!0;if(null==localStorage)o=!1;else try{localStorage.setItem("test","test"),localStorage.removeItem("test")}catch(v){o=!1}if(!o)return void(j.textContent="Local storage is required for functionality!");k.disabled=!1,n.disabled=!1;var p="",q=!1,r=0,s={},t={},u={};(function(){var v=localStorage.getItem("f");if(null==v)return void localStorage.clear();var x=v.split(" ");for(var y in x)s[x[y]]=!0;for(var A in r=x.length,s){var B=localStorage.getItem(A+"name");t[B]=A}})(),h(),i.addEventListener("keyup",v=>{"Enter"==v.key&&g()}),k.addEventListener("click",()=>{q?h():g()}),l.addEventListener("click",()=>{}),m.addEventListener("click",()=>{q&&(s[t[p]]=null,r-=1,t[p]=null,u[p]=null,h())})})();
+(() => {
+    var textFilename = document.getElementById("name");
+    var textEditor = document.getElementById("editor");
+
+    var buttonOpenClose = document.getElementById("openclose");
+    var buttonSave = document.getElementById("save");
+    var buttonDelete = document.getElementById("delete");
+
+    var checkSaveClose = document.getElementById("saveclose");
+
+    var supported = true
+    if (localStorage == null)
+        supported = false
+    else {
+        try {
+            localStorage.setItem("test", "test")
+            localStorage.removeItem("test")
+        } catch (exception) {
+            supported = false
+        }
+    }
+
+    if (!supported) {
+        textEditor.textContent = "Local storage is required for functionality!"
+        return;
+    }
+
+    buttonOpenClose.disabled = false
+    checkSaveClose.disabled = false
+
+    var filename = "";
+    var opened = false;
+
+    var fileIdentLength = 0;
+    var fileIdents = {};
+    var fileToIdent = {};
+    var fileToText = {};
+
+    function ident() {
+        var newIdent = "f_" + String(Math.floor(Math.random() * 4294967296));
+        if (fileIdents[newIdent])
+            return ident();
+
+        fileIdents[newIdent] = true
+        fileIdentLength += 1
+        return newIdent;
+    }
+
+    function save() {
+        fileToText[filename] = textEditor.textContent;
+
+        for (var file in fileToText) {
+            var ident = fileToIdent[file];
+
+            localStorage.setItem(ident + "name", file);
+            localStorage.setItem(ident, fileToText[file])
+        }
+
+        var z = [];
+        for (var w in fileIdents)
+            if (fileIdents[w] != null)
+                z.push(w);
+
+        if (z.length > 0)
+            localStorage.setItem("f", z.join(" "));
+    }
+
+    function load() {
+        var f = localStorage.getItem("f");
+        if (f == null) {
+            localStorage.clear();
+            return;
+        }
+
+        var z = f.split(" ");
+        for (var w in z)
+            fileIdents[z[w]] = true;
+        fileIdentLength = z.length;
+
+        for (var ident in fileIdents) {
+            var file = localStorage.getItem(ident + "name");
+            fileToIdent[file] = ident;
+        }
+    }
+
+    function loadFile() {
+        fileToText[filename] = localStorage.getItem(fileToIdent[filename])
+    }
+
+    function unloadFile() {
+        fileToText[filename] = null
+    }
+
+    load();
+
+    function open() {
+        if (textFilename.value.length < 1 || textFilename.value.length > 64)
+            return;
+
+        buttonOpenClose.textContent = "Close";
+
+        textFilename.disabled = true;
+
+        buttonSave.disabled = false;
+        buttonDelete.disabled = false;
+
+        filename = textFilename.value;
+        opened = true;
+
+        textEditor.contentEditable = true;
+        loadFile()
+        if (fileToIdent[filename] == null) {
+            fileToIdent[filename] = ident();
+            fileToText[filename] = "";
+        }
+
+        textEditor.textContent = fileToText[filename];
+
+        textEditor.focus();
+    }
+
+    function close() {
+        if (opened) {
+            if (checkSaveClose.checked)
+                save();
+
+            unloadFile();
+        }
+
+        buttonOpenClose.textContent = "Open";
+
+        textFilename.disabled = false;
+
+        buttonSave.disabled = true;
+        buttonDelete.disabled = true;
+
+        filename = "";
+        opened = false;
+
+        textEditor.contentEditable = false;
+        textEditor.textContent = "Files (" + fileIdentLength + ")";
+
+        if (fileIdentLength > 0) {
+            textEditor.textContent += ":\r\n"
+            for (var file in fileToIdent)
+                if (fileToIdent[file] != null)
+                    textEditor.textContent += " " + file + "\r\n";
+        }
+
+        textFilename.focus();
+    }
+
+    close();
+
+    textFilename.addEventListener("keyup", (event) => {
+        if (event.key == "Enter")
+            open();
+    });
+
+    buttonOpenClose.addEventListener("click", () => {
+        if (opened)
+            close();
+        else
+            open();
+    });
+
+    buttonSave.addEventListener("click", () => {
+        if (!opened)
+            return;
+    });
+
+    buttonDelete.addEventListener("click", () => {
+        if (!opened)
+            return;
+
+        fileIdents[fileToIdent[filename]] = null;
+        fileIdentLength -= 1;
+        fileToIdent[filename] = null;
+        fileToText[filename] = null;
+
+        close();
+    });
+})();
