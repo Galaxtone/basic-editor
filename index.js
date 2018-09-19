@@ -140,25 +140,30 @@
         opened = false;
 
         textEditor.contentEditable = false;
-        textEditor.textContent = "Files (" + fileIdentLength + ")";
+        textEditor.innerHTML = "Files (" + fileIdentLength + ")";
 
         if (fileIdentLength > 0) {
-            textEditor.textContent += ":\r\n"
+            textEditor.innerHTML += ":<br/>"
             for (var file in fileToIdent)
                 if (fileToIdent[file] != null)
-                    textEditor.textContent += " " + file + "\r\n";
+                    textEditor.textContent += " <a href=\"#" + file + "\">" + file + "</a><br/>";
         }
 
         textFilename.focus();
     }
 
+    function hash() {
+        var possibleFile = location.hash.substring(1);
+        if (location.hash.startsWith("#") && fileToIdent[possibleFile] != null) {
+            textFilename.value = possibleFile;
+            open();
+        }
+    }
+
     close();
 
-    var possibleFile = location.hash.substring(1);
-    if (location.hash.startsWith("#") && fileToIdent[possibleFile] != null) {
-        textFilename.value = possibleFile;
-        open();
-    }
+    hash();
+    document.addEventListener("hashchange", hash);
 
     textFilename.addEventListener("keyup", (event) => {
         if (event.key == "Enter")
