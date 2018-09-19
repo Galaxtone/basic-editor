@@ -126,6 +126,7 @@
             if (checkSaveClose.checked)
                 save();
 
+            location.hash = "";
             unloadFile();
         }
 
