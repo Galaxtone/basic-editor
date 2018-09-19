@@ -3,12 +3,12 @@ body {
 }
 
 header {
-  margin: 5px 0 5px 0;
+  padding: 5px 0 5px 0;
   background-color: #ddd;
   text-align: center;
 }
 
-.editor {
+#editor {
   background-color: #eee;
   width: 100%;
   height: 100%;
