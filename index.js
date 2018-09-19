@@ -91,10 +91,6 @@
         fileToText[filename] = localStorage.getItem(fileToIdent[filename])
     }
 
-    function unloadFile() {
-        fileToText[filename] = null
-    }
-
     load();
 
     function open() {
@@ -129,7 +125,6 @@
                 save();
 
             location.hash = "";
-            unloadFile();
         }
 
         buttonOpenClose.textContent = "Open";
@@ -183,6 +178,8 @@
     buttonSave.addEventListener("click", () => {
         if (!opened)
             return;
+
+        save();
     });
 
     buttonDelete.addEventListener("click", () => {
