@@ -53,6 +53,8 @@
 
         for (var file in fileToText) {
             var ident = fileToIdent[file];
+            if (fileToText[file] == null)
+                return;
 
             localStorage.setItem(ident + "name", file);
             localStorage.setItem(ident, fileToText[file])
