@@ -143,10 +143,10 @@
         textEditor.innerHTML = "Files (" + fileIdentLength + ")";
 
         if (fileIdentLength > 0) {
-            textEditor.innerHTML += ":<br/>"
+            textEditor.innerHTML += ":\r\n"
             for (var file in fileToIdent)
                 if (fileToIdent[file] != null)
-                    textEditor.textContent += " <a href=\"#" + file + "\">" + file + "</a><br/>";
+                    textEditor.textContent += " <a href=\"#" + file + "\">" + file + "</a>\r\n";
         }
 
         textFilename.focus();
