@@ -1,183 +1,181 @@
-(() => {
-    var textFilename = document.getElementById("name");
-    var textEditor = document.getElementById("editor");
+var textFilename = document.getElementById("name");
+var textEditor = document.getElementById("editor");
 
-    var buttonOpenClose = document.getElementById("openclose");
-    var buttonSave = document.getElementById("save");
-    var buttonDelete = document.getElementById("delete");
+var buttonOpenClose = document.getElementById("openclose");
+var buttonSave = document.getElementById("save");
+var buttonDelete = document.getElementById("delete");
 
-    var checkSaveClose = document.getElementById("saveclose");
+var checkSaveClose = document.getElementById("saveclose");
 
-    var supported = true
-    if (localStorage == null)
+var supported = true
+if (localStorage == null)
+    supported = false
+else {
+    try {
+        localStorage.setItem("test", "test")
+        localStorage.removeItem("test")
+    } catch (exception) {
         supported = false
-    else {
-        try {
-            localStorage.setItem("test", "test")
-            localStorage.removeItem("test")
-        } catch (exception) {
-            supported = false
-        }
+    }
+}
+
+if (!supported) {
+    textEditor.textContent = "Local storage is required for functionality!"
+    return;
+}
+
+buttonOpenClose.disabled = false
+checkSaveClose.disabled = false
+
+var filename = "";
+var opened = false;
+
+var fileIdentLength = 0;
+var fileIdents = {};
+var fileToIdent = {};
+var fileToText = {};
+
+function ident() {
+    var newIdent = "f_" + String(Math.floor(Math.random() * 4294967296));
+    if (fileIdents[newIdent])
+        return ident();
+
+    fileIdents[newIdent] = true
+    fileIdentLength += 1
+    return newIdent;
+}
+
+function save() {
+    fileToText[filename] = textEditor.textContent;
+
+    for (var file in fileToText) {
+        var ident = fileToIdent[file];
+
+        localStorage.setItem(ident + "name", file);
+        localStorage.setItem(ident, fileToText[file])
     }
 
-    if (!supported) {
-        textEditor.textContent = "Local storage is required for functionality!"
+    var z = [];
+    for (var w in fileIdents)
+        if (fileIdents[w] != null)
+            z.push(w);
+
+    if (z.length > 0)
+        localStorage.setItem("f", z.join(" "));
+}
+
+function load() {
+    var f = localStorage.getItem("f");
+    if (f == null) {
+        localStorage.clear();
         return;
     }
 
-    buttonOpenClose.disabled = false
-    checkSaveClose.disabled = false
+    var z = f.split(" ");
+    for (var w in z)
+        fileIdents[z[w]] = true;
+    fileIdentLength = z.length;
 
-    var filename = "";
-    var opened = false;
+    for (var ident in fileIdents) {
+        var file = localStorage.getItem(ident + "name");
+        fileToIdent[file] = ident;
+    }
+}
 
-    var fileIdentLength = 0;
-    var fileIdents = {};
-    var fileToIdent = {};
-    var fileToText = {};
+function loadFile() {
+    fileToText[filename] = localStorage.getItem(fileToIdent[filename])
+}
 
-    function ident() {
-        var newIdent = "f_" + String(Math.floor(Math.random() * 4294967296));
-        if (fileIdents[newIdent])
-            return ident();
+function unloadFile() {
+    fileToText[filename] = null
+}
 
-        fileIdents[newIdent] = true
-        fileIdentLength += 1
-        return newIdent;
+load();
+
+function open() {
+    if (textFilename.value.length < 1 || textFilename.value.length > 64)
+        return;
+
+    buttonOpenClose.textContent = "Close";
+
+    textFilename.disabled = true;
+
+    buttonSave.disabled = false;
+    buttonDelete.disabled = false;
+
+    filename = textFilename.value;
+    opened = true;
+
+    textEditor.contentEditable = true;
+    loadFile()
+    if (fileToIdent[filename] == null) {
+        fileToIdent[filename] = ident();
+        fileToText[filename] = "";
     }
 
-    function save() {
-        fileToText[filename] = textEditor.textContent;
+    textEditor.textContent = fileToText[filename];
 
-        for (var file in fileToText) {
-            var ident = fileToIdent[file];
+    textEditor.focus();
+}
 
-            localStorage.setItem(ident + "name", file);
-            localStorage.setItem(ident, fileToText[file])
-        }
+function close() {
+    if (opened) {
+        if (checkSaveClose.checked)
+            save();
 
-        var z = [];
-        for (var w in fileIdents)
-            if (fileIdents[w] != null)
-                z.push(w);
-
-        if (z.length > 0)
-            localStorage.setItem("f", z.join(" "));
+        unloadFile();
     }
 
-    function load() {
-        var f = localStorage.getItem("f");
-        if (f == null) {
-            localStorage.clear();
-            return;
-        }
+    buttonOpenClose.textContent = "Open";
 
-        var z = f.split(" ");
-        for (var w in z)
-            fileIdents[z[w]] = true;
-        fileIdentLength = z.length;
+    textFilename.disabled = false;
 
-        for (var ident in fileIdents) {
-            var file = localStorage.getItem(ident + "name");
-            fileToIdent[file] = ident;
-        }
+    buttonSave.disabled = true;
+    buttonDelete.disabled = true;
+
+    filename = "";
+    opened = false;
+
+    textEditor.contentEditable = false;
+    textEditor.textContent = "Files (" + fileIdentLength + ")";
+
+    if (fileIdentLength > 0) {
+        textEditor.textContent += ":\r\n"
+        for (var file in fileToIdent)
+            if (fileToIdent[file] != null)
+                textEditor.textContent += " " + file + "\r\n";
     }
 
-    function loadFile() {
-        fileToText[filename] = localStorage.getItem(fileToIdent[filename])
-    }
+    textFilename.focus();
+}
 
-    function unloadFile() {
-        fileToText[filename] = null
-    }
+close();
 
-    load();
+textFilename.addEventListener("keyup", (event) => {
+    if (event.key == "Enter")
+        open();
+});
 
-    function open() {
-        if (textFilename.value.length < 1 || textFilename.value.length > 64)
-            return;
+buttonOpenClose.addEventListener("click", () => {
+    if (opened)
+        close();
+    else
+        open();
+});
 
-        buttonOpenClose.textContent = "Close";
+buttonSave.addEventListener("click", () => {
+    if (!opened)
+        return;
+});
 
-        textFilename.disabled = true;
+buttonDelete.addEventListener("click", () => {
+    if (!opened)
+        return;
 
-        buttonSave.disabled = false;
-        buttonDelete.disabled = false;
-
-        filename = textFilename.value;
-        opened = true;
-
-        textEditor.contentEditable = true;
-        loadFile()
-        if (fileToIdent[filename] == null) {
-            fileToIdent[filename] = ident();
-            fileToText[filename] = "";
-        }
-
-        textEditor.textContent = fileToText[filename];
-
-        textEditor.focus();
-    }
-
-    function close() {
-        if (opened) {
-            if (checkSaveClose.checked)
-                save();
-
-            unloadFile();
-        }
-
-        buttonOpenClose.textContent = "Open";
-
-        textFilename.disabled = false;
-
-        buttonSave.disabled = true;
-        buttonDelete.disabled = true;
-
-        filename = "";
-        opened = false;
-
-        textEditor.contentEditable = false;
-        textEditor.textContent = "Files (" + fileIdentLength + ")";
-
-        if (fileIdentLength > 0) {
-            textEditor.textContent += ":\r\n"
-            for (var file in fileToIdent)
-                if (fileToIdent[file] != null)
-                    textEditor.textContent += " " + file + "\r\n";
-        }
-
-        textFilename.focus();
-    }
+    fileIdents[fileToIdent[filename]] = null;
+    fileIdentLength -= 1;
+    fileToIdent[filename] = null;
+    fileToText[filename] = null;
 
     close();
-
-    textFilename.addEventListener("keyup", (event) => {
-        if (event.key == "Enter")
-            open();
-    });
-
-    buttonOpenClose.addEventListener("click", () => {
-        if (opened)
-            close();
-        else
-            open();
-    });
-
-    buttonSave.addEventListener("click", () => {
-        if (!opened)
-            return;
-    });
-
-    buttonDelete.addEventListener("click", () => {
-        if (!opened)
-            return;
-
-        fileIdents[fileToIdent[filename]] = null;
-        fileIdentLength -= 1;
-        fileToIdent[filename] = null;
-        fileToText[filename] = null;
-
-        close();
-    });
-})();
+});
