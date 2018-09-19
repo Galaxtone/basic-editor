@@ -49,7 +49,7 @@
     }
 
     function save() {
-        fileToText[filename] = textEditor.textContent;
+        fileToText[filename] = textEditor.innerText;
 
         for (var file in fileToText) {
             var ident = fileToIdent[file];
@@ -114,7 +114,7 @@
             fileToText[filename] = "";
         }
 
-        textEditor.textContent = fileToText[filename];
+        textEditor.innerText = fileToText[filename];
 
         textEditor.focus();
     }
